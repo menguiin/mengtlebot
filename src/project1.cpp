@@ -1,14 +1,14 @@
-#include "ros/ros.h"
-#include "sensor_msgs/LaserScan.h"
-#include "geometry_msgs/Twist.h"
+#include <ros/ros.h>
+#include <sensor_msgs/LaserScan.h>
+#include <geometry_msgs/Twist.h>
+#include <std_msgs/Bool.h>
+#include "menguiin_bot/Angle.h"
 
-geometry_msgs::Twist vel;
-ros::Publisher *publishPtr;
+// 전역 변수 선언
+static geometry_msgs::Twist vel;
 
 void scanCallback(const sensor_msgs::LaserScan::ConstPtr &msg)
 {
-    ros::Publisher laser_pub = (ros::Publisher)*publishPtr;
-
     ROS_INFO("recieve msg[180] = %f", msg->ranges[180]);
 
     //start
@@ -49,18 +49,29 @@ void scanCallback(const sensor_msgs::LaserScan::ConstPtr &msg)
         vel.angular.z = 1;
         ROS_INFO("recieve msg[270] = %f", msg->ranges[270]);
     }
-    laser_pub.publish(vel);
 }
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "project1");
-    ros::NodeHandle nh;
-    ros::Publisher laser_pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
-    ros::Subscriber laser_sub = nh.subscribe("/scan", 1, scanCallback);
-    publishPtr = &laser_pub;
+    using namespace ros;
+    init(argc, argv, "project1");
+    NodeHandle nh;
+    Publisher laser_pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
+    Subscriber laser_sub = nh.subscribe("/scan", 1, scanCallback);
+    Publisher motor_pub = nh.advertise<std_msgs::Bool>("/motor_power", 1);
+    Rate loop_rate(10); // 주기는 10HZ로..
 
-    ros::spin();
+    // 모터 켜기
+    std_msgs::Bool power;
+    power.data = true;
+    motor_pub.publish(power);
+    
+    while(ok())
+    {
+        laser_pub.publish(vel);
+        spinOnce();
+        loop_rate.sleep();
+    }
 
     return 0;
 }
