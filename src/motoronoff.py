@@ -12,6 +12,7 @@ onoff = Bool()
 is_on = False
 
 def imu_callback(msg):
+    is_on = input("On(1)/Off(0): ")
     global roll, pitch, yaw
     orientation_q = msg.orientation
     orientation_list = [orientation_q.x, orientation_q.y, orientation_q.z, orientation_q.w]
@@ -30,7 +31,7 @@ def motor():
     rospy.init_node('motoronoff', anonymous=True)
     rospy.Subscriber('imu', Imu, imu_callback)
 
-    is_on = input("On(1)/Off(0): ")
+    
     if is_on == 1 or is_on == 0:
         is_on = bool(is_on)
     else:
@@ -39,6 +40,7 @@ def motor():
         pass
     
     onoff.data = is_on
+
     rospy.spin()
 
 if __name__ == '__main__':

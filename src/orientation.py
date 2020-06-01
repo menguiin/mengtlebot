@@ -9,22 +9,21 @@ print("Window5")
 roll = pitch = yaw = 0.0
 
 def imu_callback(msg):
+    rate = rospy.Rate(10)
     global roll, pitch, yaw
     orientation_q = msg.orientation
     orientation_list = [orientation_q.x, orientation_q.y, orientation_q.z, orientation_q.w]
     (roll, pitch, yaw) = np.rad2deg(euler_from_quaternion(orientation_list))
-    print(roll)
-
-def time_callback(event):
     rospy.loginfo("X: %f\n" % roll)
     rospy.loginfo("Y: %f\n" % pitch)
     rospy.loginfo("Z: %f\n" % yaw)
+    rate.sleep()
+
 
 
 def listener():
     rospy.init_node("orientation", anonymous=True)
     rospy.Subscriber("imu", Imu, imu_callback)
-    rospy.Timer(rospy.Duration.from_sec(0.1), time_callback)
 
     rospy.spin()
 

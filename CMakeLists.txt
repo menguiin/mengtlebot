@@ -11,7 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
 )
 
-add_message_files(FILES Angle.msg)
+add_message_files(FILES Angle.msg Distance.msg Velocity.msg)
 generate_messages(DEPENDENCIES std_msgs)
 
 catkin_package(
@@ -29,5 +29,11 @@ include_directories(
 add_executable(project1 src/project1.cpp)
 add_dependencies(project1 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(project1
+  ${catkin_LIBRARIES}
+)
+
+add_executable(input_value src/input_value.cpp)
+add_dependencies(input_value ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(input_value
   ${catkin_LIBRARIES}
 )
